@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Tính Thuế TNCN 2025</title>
+    <meta name="description"
+        content="Công cụ tính thuế thu nhập cá nhân (TNCN) 2025 theo biểu thuế lũy tiến từng phần. Tính nhanh, chính xác, miễn phí.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #3b5bdb;
+            --primary-dark: #2f4ac8;
+            --primary-light: #e8edff;
+            --accent: #f03e3e;
+            --success: #2f9e44;
+            --bg: #f0f2f8;
+            --card: #ffffff;
+            --text: #1a1d27;
+            --muted: #6b7280;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(59, 91, 219, .09);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ── HEADER ── */
+        .app-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b5bdb 50%, #6366f1 100%);
+            padding: 32px 20px 64px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 70% 50%, rgba(99, 102, 241, .3) 0%, transparent 60%);
+        }
+
+        .app-header h1 {
+            font-size: clamp(22px, 4vw, 36px);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        .app-header h1 span {
+            color: #a5b4fc;
+        }
+
+        .app-header p {
+            color: rgba(255, 255, 255, .72);
+            margin-top: 8px;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .badge-year {
+            display: inline-block;
+            background: rgba(255, 255, 255, .18);
+            border: 1px solid rgba(255, 255, 255, .3);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(6px);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .container {
+            max-width: 1100px;
+            margin: -36px auto 40px;
+            padding: 0 16px;
+            position: relative;
+        }
+
+        .grid-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 820px) {
+            .grid-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            padding: 28px;
+            animation: fadeUp .4s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:nth-child(2) {
+            animation-delay: .08s;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--primary-light);
+            margin-bottom: 22px;
+        }
+
+        .card-title .icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        /* ── TABS (Tháng / Năm) ── */
+        .tab-group {
+            display: flex;
+            background: #f1f3fb;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: all .2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(59, 91, 219, .3);
+        }
+
+        /* ── FORM FIELDS ── */
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 6px;
+        }
+
+        .field input {
+            width: 100%;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Inter', monospace;
+            color: var(--text);
+            background: #fafafa;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+
+        .field input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 91, 219, .12);
+            background: #fff;
+        }
+
+        .field input.error {
+            border-color: var(--accent);
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* ── ERROR BOX ── */
+        .error-box {
+            background: #fff5f5;
+            border: 1px solid #fca5a5;
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            margin-bottom: 12px;
+            animation: fadeUp .2s;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        /* ── RESULT SUMMARY ── */
+        .summary-box {
+            background: #f8faff;
+            border: 1px solid #dde4ff;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e5e7eb;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row .lbl {
+            font-weight: 500;
+        }
+
+        .summary-row .val {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .summary-row.total {
+            padding-top: 12px;
+            margin-top: 4px;
+            border-top: 2px solid #c7d2fe;
+            border-bottom: none;
+        }
+
+        .summary-row.total .lbl {
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--primary);
+        }
+
+        .summary-row.total .val {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        /* ── BRACKET TABLE ── */
+        .bracket-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead th {
+            background: #f1f3fb;
+            padding: 9px 12px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--muted);
+        }
+
+        thead th:not(:first-child) {
+            text-align: right;
+        }
+
+        tbody td {
+            padding: 9px 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        tbody td:not(:first-child) {
+            text-align: right;
+        }
+
+        tbody tr:hover td {
+            background: #f5f7ff;
+        }
+
+        .rate-badge {
+            display: inline-block;
+            background: #e8edff;
+            color: var(--primary);
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .tax-val {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .income-val {
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .bracket-active {
+            background: #fef9ff !important;
+        }
+
+        /* ── TOTAL TAX CARD ── */
+        .total-tax-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b5bdb 100%);
+            border-radius: 14px;
+            padding: 20px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 24px rgba(59, 91, 219, .28);
+        }
+
+        .total-tax-card .label {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .8);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .total-tax-card .amount {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        /* ── NET INCOME ── */
+        .net-income-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 13px 16px;
+            margin-bottom: 12px;
+        }
+
+        .net-income-row .label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #166534;
+        }
+
+        .net-income-row .amount {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--success);
+        }
+
+        /* ── EFFECTIVE RATE ── */
+        .eff-rate-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--muted);
+            padding: 2px 0;
+        }
+
+        .eff-rate-row strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        /* ── PRINT BUTTON ── */
+        .btn-print {
+            width: 100%;
+            margin-top: 14px;
+            padding: 12px;
+            border: 1.5px solid var(--primary);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-print:hover {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(59, 91, 219, .3);
+        }
+
+        /* ── ZERO STATE ── */
+        .zero-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #c0c8d8;
+        }
+
+        .zero-state svg {
+            margin: 0 auto 10px;
+        }
+
+        .zero-state p {
+            font-size: 14px;
+        }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .app-header {
+                background: #1e3a8a !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .btn-print {
+                display: none;
+            }
+
+            .tab-group {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="badge-year">⚡ BIỂU THUẾ TNCN NĂM 2025</div>
+        <h1>Tính Thuế <span>Thu Nhập Cá Nhân</span></h1>
+        <p>Tính nhanh · Chính xác · Lũy tiến từng phần</p>
+    </header>
+
+    <main class="container">
+        <div class="grid-main">
+
+            <!-- ════ CỘT TRÁI: NHẬP LIỆU ════ -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </span>
+                    Dữ liệu thu nhập
+                </div>
+
+                <!-- Tab tháng / năm -->
+                <div class="tab-group" id="tabGroup">
+                    <button class="tab-btn active" id="tabMonth" onclick="switchMode('month')">📅 Theo Tháng</button>
+                    <button class="tab-btn" id="tabYear" onclick="switchMode('year')">📆 Theo Năm</button>
+                </div>
+
+                <div class="field">
+                    <label id="labelGross">Tổng thu nhập (VND)</label>
+                    <input type="text" id="gross" value="30.000.000" inputmode="numeric"
+                        oninput="formatAndCalculate(this)" autocomplete="off">
+                    <div class="input-hint" id="hintGross">Thu nhập gộp bao gồm cả bảo hiểm</div>
+                </div>
+
+                <div class="field">
+                    <label id="labelInsurance">Bảo hiểm bắt buộc (VND)</label>
+                    <input type="text" id="insurance" value="3.150.000" inputmode="numeric"
+                        oninput="formatAndCalculate(this)" autocomplete="off">
+                    <div class="input-hint">BHXH 8% + BHYT 1.5% + BHTN 1% = 10.5% lương đóng BH</div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field" style="margin-bottom:0">
+                        <label>Số người phụ thuộc</label>
+                        <input type="number" id="dependents" value="0" min="0" oninput="calculateTax()">
+                    </div>
+                    <div class="field" style="margin-bottom:0">
+                        <label>Số tháng tính NPT</label>
+                        <input type="number" id="dependentMonths" value="1" min="1" max="12" oninput="calculateTax()">
+                    </div>
+                </div>
+
+                <div class="field" style="margin-top:16px">
+                    <label>Các khoản miễn thuế (VND)</label>
+                    <input type="text" id="exempt" value="0" inputmode="numeric" oninput="formatAndCalculate(this)"
+                        autocomplete="off">
+                    <div class="input-hint">Phụ cấp ăn trưa, xăng xe... được miễn tối đa theo quy định</div>
+                </div>
+
+                <div id="errorMsg" class="error-box"></div>
+
+                <!-- Bảng tham chiếu nhanh -->
+                <details style="margin-top:8px; cursor:pointer;">
+                    <summary style="font-size:12px;font-weight:700;color:var(--primary);user-select:none;">📋 Xem bảng
+                        thuế suất 2025</summary>
+                    <div style="margin-top:10px; border-radius:10px; overflow:hidden; border:1px solid var(--border);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bậc</th>
+                                    <th style="text-align:right">Thu nhập tính thuế/tháng</th>
+                                    <th style="text-align:right">Thuế suất</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+				 <tr>
+                                    <td>Bậc 1</td>
+                                    <td style="text-align:right">Đến 5 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">5%</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>Bậc 2</td>
+                                    <td style="text-align:right">Trên 5 đến 10 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">10%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Bậc 3</td>
+                                    <td style="text-align:right">Trên 10 – 18 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">15%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Bậc 4</td>
+                                    <td style="text-align:right">Trên 18 – 32 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">20%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Bậc 5</td>
+                                    <td style="text-align:right">Trên 32 – 52 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">25%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Bậc 6</td>
+                                    <td style="text-align:right">Trên 52 đến 80 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">30%</span></td>
+                                </tr>
+				<tr>
+                                    <td>Bậc 7</td>
+                                    <td style="text-align:right">Trên 80 triệu</td>
+                                    <td style="text-align:right"><span class="rate-badge">35%</span></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            </div>
+
+            <!-- ════ CỘT PHẢI: KẾT QUẢ ════ -->
+            <div class="card" id="resultCard">
+                <div class="card-title">
+                    <span class="icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </span>
+                    <span id="resultTitle">Kết quả chi tiết – Tháng</span>
+                </div>
+
+                <!-- Summary box -->
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span class="lbl">Thu nhập chịu thuế</span>
+                        <span class="val" id="resTaxable">0 ₫</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="lbl">Giảm trừ bản thân</span>
+                        <span class="val" id="resPersonal">11.000.000 ₫</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="lbl">
+                            Giảm trừ phụ thuộc
+                            <span id="dependentDetail"
+                                style="display:block;font-size:11px;color:#6366f1;font-weight:600;"></span>
+                        </span>
+                        <span class="val" id="resDependent">0 ₫</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span class="lbl">THU NHẬP TÍNH THUẾ</span>
+                        <span class="val" id="resAssessable">0 ₫</span>
+                    </div>
+                </div>
+
+                <!-- Bracket table -->
+                <div id="bracketArea" style="display:none;">
+                    <div class="bracket-title">Phân bổ biểu thuế lũy tiến từng phần</div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Bậc</th>
+                                    <th>Thuế suất</th>
+                                    <th>TN tính thuế (bậc này)</th>
+                                    <th>Số thuế</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bracketTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Zero state -->
+                <div id="zeroState" style="display:none;">
+                    <div class="zero-state">
+                        <svg width="48" height="48" fill="none" stroke="#d1d5db" stroke-width="1.5" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 12h8M12 8v8" />
+                        </svg>
+                        <p>Thu nhập tính thuế = 0 ₫<br>Không phát sinh thuế TNCN 🎉</p>
+                    </div>
+                </div>
+
+                <!-- Total tax -->
+                <div class="total-tax-card">
+                    <span class="label">💰 Thuế phải nộp</span>
+                    <span class="amount" id="resTotalTax">0 ₫</span>
+                </div>
+
+                <!-- Net income -->
+                <div class="net-income-row">
+                    <span class="label">✅ Thu nhập thực nhận</span>
+                    <span class="amount" id="resNetIncome">0 ₫</span>
+                </div>
+
+                <!-- Effective rate -->
+                <div class="eff-rate-row">
+                    <span>Thuế suất hiệu dụng</span>
+                    <strong id="resEffRate">0%</strong>
+                </div>
+                <div class="eff-rate-row" style="margin-top:4px;">
+                    <span>Tỉ lệ thuế / thu nhập gộp</span>
+                    <strong id="resGrossRate">0%</strong>
+                </div>
+
+                <button class="btn-print" onclick="window.print()">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M6 9V2h12v7" />
+                        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+                        <rect x="6" y="14" width="12" height="8" />
+                    </svg>
+                    In / Lưu PDF
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        /* ─── CONSTANTS ─── */
+        const GIA_CANH_BAN_THAN = 11_000_000;
+        const GIA_CANH_PHU_THUOC = 4_400_000;
+        const BRACKETS = [
+            { label: 'Bậc 1 (≤ 5tr)', max: 5_000_000, rate: 0.05 },
+            { label: 'Bậc 2 (5tr – 10tr)', max: 10_000_000, rate: 0.10 },
+            { label: 'Bậc 3 (10tr – 18tr)', max: 18_000_000, rate: 0.15 },
+ 	    { label: 'Bậc 4 (18tr – 32tr)', max: 32_000_000, rate: 0.20 },
+            { label: 'Bậc 5 (32tr – 52tr)', max: 52_000_000, rate: 0.25 },
+            { label: 'Bậc 6 (52tr – 80tr)', max: 80_000_000, rate: 0.30 },
+            { label: 'Bậc 7 (> 80tr)', max: Infinity, rate: 0.35 },
+        ];
+
+        let calcMode = 'month'; // 'month' | 'year'
+
+        /* ─── FORMAT HELPERS ─── */
+        const fmt = (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Math.round(n));
+        const pct = (n, total) => total > 0 ? (n / total * 100).toFixed(2) + '%' : '0%';
+
+        function formatAndCalculate(input) {
+            const pos = input.selectionStart;
+            const prevLen = input.value.length;
+            let digits = input.value.replace(/\D/g, '');
+            if (digits) digits = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            input.value = digits;
+            // restore cursor
+            const diff = digits.length - prevLen;
+            input.setSelectionRange(pos + diff, pos + diff);
+            calculateTax();
+        }
+
+        function getRaw(id) {
+            return Number(document.getElementById(id).value.replace(/\./g, '').replace(/\D/g, '')) || 0;
+        }
+
+        /* ─── TAB SWITCH ─── */
+        function switchMode(mode) {
+            calcMode = mode;
+            const isYear = mode === 'year';
+            document.getElementById('tabMonth').classList.toggle('active', !isYear);
+            document.getElementById('tabYear').classList.toggle('active', isYear);
+            document.getElementById('labelGross').textContent = isYear ? 'Tổng thu nhập cả năm (VND)' : 'Tổng thu nhập (VND)';
+            document.getElementById('labelInsurance').textContent = isYear ? 'Bảo hiểm cả năm (VND)' : 'Bảo hiểm bắt buộc (VND)';
+            document.getElementById('hintGross').textContent = isYear ? 'Tổng thu nhập gộp 12 tháng' : 'Thu nhập gộp bao gồm cả bảo hiểm';
+            document.getElementById('resultTitle').textContent = isYear ? 'Kết quả chi tiết – Năm' : 'Kết quả chi tiết – Tháng';
+            calculateTax();
+        }
+
+        /* ─── MAIN CALCULATION ─── */
+        function calculateTax() {
+            const grossRaw = getRaw('gross');
+            const insuranceRaw = getRaw('insurance');
+            const exemptRaw = getRaw('exempt');
+            const dependents = Math.max(0, Number(document.getElementById('dependents').value) || 0);
+            const depMonths = Math.max(1, Number(document.getElementById('dependentMonths').value) || 1);
+            const errorEl = document.getElementById('errorMsg');
+
+            /* Validate */
+            if (insuranceRaw + exemptRaw > grossRaw) {
+                errorEl.innerHTML = '⚠️ <b>Lỗi:</b> Bảo hiểm + Miễn thuế không được lớn hơn Tổng thu nhập.';
+                errorEl.classList.add('show');
+                return;
+            }
+            errorEl.classList.remove('show');
+
+            /* Nếu tính theo năm → chia 12 để ra tháng, rồi tính theo tháng, sau đó nhân lại */
+            const factor = calcMode === 'year' ? 12 : 1;
+            const gross = grossRaw / factor;
+            const insurance = insuranceRaw / factor;
+            const exempt = exemptRaw / factor;
+
+            /* BƯỚC 1: Thu nhập chịu thuế (tháng) */
+            const taxableIncome = gross - insurance - exempt;
+
+            /* BƯỚC 2: Giảm trừ */
+            const deductDep = dependents * GIA_CANH_PHU_THUOC * depMonths;
+            const totalDeduct = GIA_CANH_BAN_THAN + deductDep;
+
+            /* BƯỚC 3: Thu nhập tính thuế (tháng) */
+            let assessable = Math.max(0, taxableIncome - totalDeduct);
+
+            /* BƯỚC 4: Lũy tiến */
+            let remaining = assessable;
+            let monthlyTax = 0;
+            let bracketHTML = '';
+
+            for (const b of BRACKETS) {
+                if (remaining <= 0) break;
+                const inTier = Math.min(remaining, b.max);
+                const taxTier = inTier * b.rate;
+                monthlyTax += taxTier;
+                remaining -= inTier;
+
+                bracketHTML += `
+                <tr>
+                    <td style="font-weight:600;color:#374151">${b.label}</td>
+                    <td><span class="rate-badge">${b.rate * 100}%</span></td>
+                    <td class="income-val">${fmt(inTier * factor)}</td>
+                    <td class="tax-val">${fmt(taxTier * factor)}</td>
+                </tr>`;
+            }
+
+            const totalTax = monthlyTax * factor;
+            const netIncome = grossRaw - insuranceRaw - totalTax;
+
+            /* BƯỚC 5: Hiển thị */
+            document.getElementById('resTaxable').textContent = fmt(taxableIncome * factor);
+            document.getElementById('resPersonal').textContent = fmt(GIA_CANH_BAN_THAN * factor);
+            document.getElementById('resDependent').textContent = fmt(deductDep * factor);
+            document.getElementById('resAssessable').textContent = fmt(assessable * factor);
+            document.getElementById('resTotalTax').textContent = fmt(totalTax);
+            document.getElementById('resNetIncome').textContent = fmt(netIncome);
+            document.getElementById('resEffRate').textContent = pct(totalTax, taxableIncome * factor);
+            document.getElementById('resGrossRate').textContent = pct(totalTax, grossRaw);
+
+            if (dependents > 0) {
+                document.getElementById('dependentDetail').textContent =
+                    `(${dependents} người × ${depMonths} tháng × 6.2tr)`;
+            } else {
+                document.getElementById('dependentDetail').textContent = '';
+            }
+
+            const bracketArea = document.getElementById('bracketArea');
+            const zeroState = document.getElementById('zeroState');
+            document.getElementById('bracketTableBody').innerHTML = bracketHTML;
+
+            if (assessable > 0) {
+                bracketArea.style.display = '';
+                zeroState.style.display = 'none';
+            } else {
+                bracketArea.style.display = 'none';
+                zeroState.style.display = '';
+            }
+        }
+
+        /* Auto-run on load */
+        calculateTax();
+    </script>
+
+</body>
+
+</html>
